@@ -31,17 +31,28 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 其中，**-d** 表示 删掉所有水分子， **-y** 表示删掉所有氢原子，此命令除了输出**output.pdb** 还会将非标准残基输出到**xxx_nonstand.pdb**中。另外也会对所有的残基重新从1开始编号，使文件格式更标准。
 
 ## 3. 预测质子化状态
-用X-ray方法解析的蛋白质不含氢，因为该无法解析它们。 LEaP程序会依据标准质子化状态，根据最佳氢键向这些残基自动添加氢原子。因此，如果不对重要的残基重命名，具有非标准质子化状态的氨基酸将被错误地质子化。例如，在 Asp 蛋白酶中，ASP并不一定是非质子化的（带负电），为了防止这种情况，必须将非标准ASP重命名为ASH（质子化的Asp，不带电）。使用正确的残基名，LEaP 将正确地为残基添加氢，下表显示了一些常见质子化状态的重命名。
+用X-ray方法解析的蛋白质不含氢，因为无法解析得到它们。 LEaP程序会依据标准质子化状态，根据最佳氢键向这些残基自动添加氢原子。因此，如果不对重要的残基重命名，具有非标准质子化状态的氨基酸将被错误地质子化。例如，在 Asp 蛋白酶中，ASP并不一定是非质子化的（带负电），为了防止这种情况，必须将非标准ASP重命名为ASH（质子化的Asp，不带电）。使用正确的残基名，LEaP 将正确地为残基添加氢，下表显示了一些常见质子化状态的重命名。
 
 ![image4](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/proton.png)
 
-下面介绍用**H++ server**来预测质子化状态：
+下面介绍用**H++ server**来预测质子化状态：(http://newbiophysics.cs.vt.edu/H++/)
 
+点击“process file”，将处理后的pdb文件上传，
 
+![image5](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pka1.png)
 
+选择合适的pH，一般将pH设置为7.0，然后点击“process”提交任务，等待几十分钟可以看到结果。
 
+![image6](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pka2.png)
 
+计算结束后可以看到每个残基的pKa，一般的pKa>7，残基质子化，<7残基溶剂化，重点关注HIS和CYS的质子化状态，另外这只是在生理环境下预测的质子化状态，尤其是HIS的三种状态要结合其他信息如反应机理等综合分析，（如果不清楚HIS的三种状态，可以百度一下）。对于CYS要看结构中有无二硫键。只需要下载下面几个关键的结果：
 
+![image7](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pka3.png)
+
+使用*ambpdb*生成修改残基名称后的pdb文件，若预测的HIS等的质子化与机理不一致，可以手动在pdb文件中修改，如将HIE-->HIP。
+```bash
+ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
+```
 
 
 
