@@ -31,7 +31,7 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 其中，**-d** 表示 删掉所有水分子， **-y** 表示删掉所有氢原子，此命令除了输出**output.pdb** 还会将非标准残基输出到**xxx_nonstand.pdb**中。另外也会对所有的残基重新从1开始编号，使文件格式更标准。
 
 ## 3. 预测质子化状态
-用X-ray方法解析的蛋白质不含氢，因为无法解析得到它们。 LEaP程序会依据标准质子化状态，根据最佳氢键向这些残基自动添加氢原子。因此，如果不对重要的残基重命名，具有非标准质子化状态的氨基酸将被错误地质子化。例如，在 Asp 蛋白酶中，ASP并不一定是非质子化的（带负电），为了防止这种情况，必须将非标准ASP重命名为ASH（质子化的Asp，不带电）。使用正确的残基名，LEaP 将正确地为残基添加氢，下表显示了一些常见质子化状态的重命名。
+用X-ray方法解析的蛋白质不含氢，因为无法解析得到它们。 LEaP程序会依据标准质子化状态，根据最佳氢键位置向这些残基自动添加氢原子。因此，如果不对重要的残基重命名，具有非标准质子化状态的氨基酸将被错误地质子化。例如，在 Asp 蛋白酶中，ASP并不一定是非质子化的（带负电），为了防止这种情况，必须将非标准ASP重命名为ASH（质子化的Asp，不带电）。使用正确的残基名，LEaP 将正确地为残基添加氢，下表显示了一些常见质子化状态的重命名。
 
 ![image4](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/proton.png)
 
@@ -56,6 +56,44 @@ ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 到这里，如果蛋白不包含非标准的残基，那其pdb文件基本就处理好了，最后的文件不包括CONNECT等原子间的连接信息，只需要每个原子的三维坐标即可。关于pdb的格式如下图所示，第2列为原子序号，第三列为原子类型，第四列为残基名称，第五列为残基编号，（若蛋白为多链，第五列对应链编号），第6-8列为原子坐标，第9列为occupancy，占有率，一般设置为1，第10列为温度因子，可设置为0，最后一列为元素名称。在导入leap程序中的输入文件，第9，10列可以不需要。
 
 ![image8](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pdb1.png)
+
+## 4. 非标准残基力场的构建
+
+这里由琮晟写。
+
+## 5. 构建小分子力场
+
+对于蛋白复合物中的配体和想研究的有机分子，由于他们的结构多样，不像氨基酸的分子构型是确定的，因此需要在模拟前自己构建特定的分子力场。一般在生物体系中对小分子计算其RESP电荷，这是由Kollman等人与1994年发展的方法，非常适用于蛋白，核酸以及有机分子在溶剂相等的模拟，文章链接：1. [A Second Generation Force Field for the Simulation of
+Proteins, Nucleic Acids, and Organic Molecules](https://pubs.acs.org/doi/10.1021/ja00124a002) 。但是并不一定使用RESP电荷，一种基于半经验方法的AM1-bcc同样也可以使用，视自己的体系决定，这个在amber官网有详细的教程：2. [计算AM1-bcc电荷](https://ambermd.org/tutorials/basic/tutorial4b/index.php) 。下面介绍一下用gaussian和antechamber来拟合小分子RESP电荷的方法。
+
+&emsp;首先，在计算电荷之前我们也需要知道小分子在`pH=7.0/7.4`的质子化状态，有时候N等原子的质子化对于小分子与蛋白的结合至关重要，这里介绍一下使用*propka3.0*来预测的方法。
+
+* 安装propka
+propka需要python 3.6 及以后的版本，可以通过anaconda创建环境然后用pip安装：
+```
+pip install propka
+```
+* 用propka预测
+用法非常简单，只需要准备小分子的pdb文件。可以用命令行，也可以手动复制粘贴，比如从复合物为6ix5的pdb中取出残基名为BOO的配体：
+```
+awk '$1=="HETATM"' 6ix5.pdb | awk '$4=="BOO"' > BOO.pdb
+```
+然后使用propka预测：
+```
+propka3 BOO.pdb
+```
+or
+```
+python -m propka BOO.pdb
+```
+计算完成后，打开名为BOO.pka的文件，找到*SUMMARY OF PREDICTION*，若发现有极性原子的pKa>7，则该原子应为质子化的，体系电荷应+1。
+
+![image9](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/propka1.png)
+
+
+
+
+
 
 
 
