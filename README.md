@@ -90,11 +90,23 @@ python -m propka BOO.pdb
 
 ![image9](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/propka1.png)
 
+* 使用gaussian和antechamber拟合RESP电荷过程
 
+将小分子加上合适的氢原子，可以使用*reduce*命令，和gaussview，或者openbabel等许多方法，注意N等极性原子的质子化！！！使用gaussian和antechamber拟合RESP电荷的过程大致分为两步：首先通过gaussian计算得到esp电荷，然后使用antechamber拟合resp电荷. 这里在网上有非常详细的教程：3. [使用gaussian和antechamber拟合RESP电荷](http://t.zoukankan.com/jszd-p-14163254.html) 。
 
+&emsp;（1）使用gaussian优化结构，关键词如下：(一定注意小分子的电荷和spin要设置正确！！！)
+```
+#p HF/6-31G* SCF Pop=MK iop(6/33=2,6/42=6,6/50=1) opt
+```
+可以使用别的泛函如B3LYP等。
 
+&emsp;（2）并在坐标后面输入两个文件名BOO_ini.gesp和BOO.gesp，（前者为初始结构的RESP电荷，后者为优化后的RESP电荷）。需要注意的是，BOO_ini.gesp 需要在坐标末尾空一行填入，BOO.gesp 同样与ini.gesp空一行，输入文件末尾空一行。
 
+&emsp;（3）使用antechamber拟合resp电荷
 
+    antechamber -i BOO.gesp -fi gesp -o BOO.mol2 -fo mol2 -pf y -rn LIG -c resp 
+
+若在高斯优化没有生成gesp文件，可能是高斯版本的问题，请看上面的教程链接。其中，**-pf** 表示删除计算的临时文件，**y** 表示yes， **-rn** 表示将mol2文件中小分子残基名重命名为LIG， **-c** 指定原子电荷为resp。
 
 
 
