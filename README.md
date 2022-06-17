@@ -108,6 +108,12 @@ python -m propka BOO.pdb
 
 若在高斯优化没有生成gesp文件，可能是高斯版本的问题，请看上面的教程链接。其中，**-pf** 表示删除计算的临时文件，**y** 表示yes， **-rn** 表示将mol2文件中小分子残基名重命名为LIG， **-c** 指定原子电荷为resp。
 
+&emsp;（4）使用*parmchk2*来生成*BOO_resp.frcmod*文件，这是一个参数文件，主要是生成的小分子mol2文件在通用力场**GAFF**中缺失的键长，键角，二面角等参数。
+```
+parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
+```
+*BOO_resp.frcmod*将包含所有缺少的参数，或者通过类比类似的参数来填补这些缺失的参数。You should check these parameters carefully before running a simulation. If antechamber can't empirically calculate a value or has no analogy it will either add a default value that it thinks is reasonable or alternatively insert a place holder (with zeros everywhere) and the comment "ATTN: needs revision". In this case you will have to manually parameterise this yourself. 
 
+至此，小分子的力场就构建完成，*BOO.mol2* 和 *BOO_resp.frcmod*包含了小分子的电荷，原子类型，残基名，键长，键角，二面角等信息，在后续的LEaP程序加载复合物pdb时将用到。但应注意的是，用*tleap*加载时，pdb中小分子的原子类型一定要和mol2文件中严格一致。（见后续图）
 
 
