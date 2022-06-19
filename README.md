@@ -118,6 +118,19 @@ parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 
 ## 6. 计算显式水系统中的盐摩尔浓度
 
-为模拟正常的生理条件，需要为 MD 模拟正确设置离子浓度。细胞中 NaCl 的浓度约为 150 mM，因此我们需计算蛋白质系统中该浓度所需的钠离子和氯离子数目。以
+为模拟正常的生理条件，需要为 MD 模拟正确设置离子浓度。细胞中 NaCl 的浓度约为 150 mM，因此我们需计算蛋白质系统中该浓度所需的钠离子和氯离子数目。这部分怎样计算在amber官网的教程中有详细过程，[Calculating Salt Molarity in an Explicit Water System](https://ambermd.org/tutorials/basic/tutorial8/index.php)，如下图所示。
+
+![image10](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/calcc.png)
+
+这里以6ix5为例计算构建`distance=10`的溶剂盒子所需要的Na+和Cl-个数，用`tleap -i tleap.in`载入下述tleap.in输入文件：
+```
+source leaprc.protein.ff14SB
+source leaprc.water.tip3p
+source leaprc.gaff2
+pdb = loadpdb 6ix5_noH.pdb
+solvateBox pdb TIP3PBOX 10.0
+```
+打开`tleap.log`的输出文件，可以找到溶剂盒子的体积，下图所示。这里介绍一个计算浓度的简便算法，用自己体系的盒子体积除以上面图片中的体积再乘以18.8即为所需的离子数目。
+
 
 
