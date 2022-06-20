@@ -129,11 +129,12 @@ source leaprc.water.tip3p
 source leaprc.gaff2
 pdb = loadpdb 6ix5_noH.pdb
 solvateBox pdb TIP3PBOX 10.0
+quit
 ```
 打开`tleap.log`的输出文件，可以找到溶剂盒子的体积，下图所示。这里介绍一个计算浓度的简便算法，用自己体系的盒子体积除以上面图片中的体积再乘以18.8即为所需的离子数目：*767021/208141x18.8=69* ， 所以最后的溶剂盒子需要69个Na+ 和 Cl-。
 
 ![image11](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/calcc2.png)
 
-
+至此，运行MD前的准备工作基本完成，下面我们介绍MD的模拟步骤。
 
 
