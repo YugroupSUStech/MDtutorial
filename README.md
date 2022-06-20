@@ -1,7 +1,7 @@
 # MDtutorial
 This tutorial is available to Yu group new members
 # 一、模拟前的准备工作
-## 1. 构建模型
+## 1.1 构建模型
 这里有一张图是关于Amber的整个流程，可以了解一下：
 
 ![image](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/amberflow.png)
@@ -19,7 +19,7 @@ This tutorial is available to Yu group new members
 
 &emsp;另外也可以使**Swiss-model**进行建模，也非常简便，步骤与上述类似，详细网址：(https://swissmodel.expasy.org/) **Swiss-model**建模简单方便，可靠性高，但是它不能进行多模板建模。
 
-## 2. 处理pdb文件
+## 1.2 处理pdb文件
 这就要用到上面介绍的*pdb4amber*命令，在使用前可以用
 ```bash
 pdb4amber -h
@@ -30,7 +30,7 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 ```
 其中，**-d** 表示 删掉所有水分子， **-y** 表示删掉所有氢原子，此命令除了输出**output.pdb** 还会将非标准残基输出到**xxx_nonstand.pdb**中。另外也会对所有的残基重新从1开始编号，使文件格式更标准。
 
-## 3. 预测质子化状态
+## 1.3 预测质子化状态
 用X-ray方法解析的蛋白质不含氢，因为无法解析得到它们。 LEaP程序会依据标准质子化状态，根据最佳氢键位置向这些残基自动添加氢原子。因此，如果不对重要的残基重命名，具有非标准质子化状态的氨基酸将被错误地质子化。例如，在 Asp 蛋白酶中，ASP并不一定是非质子化的（带负电），为了防止这种情况，必须将非标准ASP重命名为ASH（质子化的Asp，不带电）。使用正确的残基名，LEaP 将正确地为残基添加氢，下表显示了一些常见质子化状态的重命名。
 
 ![image4](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/proton.png)
@@ -57,11 +57,11 @@ ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 
 ![image8](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pdb1.png)
 
-## 4. 非标准残基力场的构建
+## 1.4 非标准残基力场的构建
 
 这里由琮晟写。
 
-## 5. 构建小分子力场
+## 1.5 构建小分子力场
 
 对于蛋白复合物中的配体和想研究的有机分子，由于他们的结构多样，不像氨基酸的分子构型是确定的，因此需要在模拟前自己构建特定的分子力场。一般在生物体系中对小分子计算其RESP电荷，这是由Kollman等人与1994年发展的方法，非常适用于蛋白，核酸以及有机分子在溶剂相等的模拟，文章链接：1. [A Second Generation Force Field for the Simulation of
 Proteins, Nucleic Acids, and Organic Molecules](https://pubs.acs.org/doi/10.1021/ja00124a002) 。但是并不一定使用RESP电荷，一种基于半经验方法的AM1-bcc同样也可以使用，视自己的体系决定，这个在amber官网有详细的教程：2. [计算AM1-bcc电荷](https://ambermd.org/tutorials/basic/tutorial4b/index.php) 。下面介绍一下用gaussian和antechamber来拟合小分子RESP电荷的方法。
@@ -116,7 +116,7 @@ parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 
 至此，小分子的力场就构建完成，*BOO.mol2* 和 *BOO_resp.frcmod*包含了小分子的电荷，原子类型，残基名，键长，键角，二面角等信息，在后续的LEaP程序加载复合物pdb时将用到。但应注意的是，用*tleap*加载时，pdb中小分子的原子类型一定要和mol2文件中严格一致。（见后续图）
 
-## 6. 计算显式水系统中的盐摩尔浓度
+## 1.6 计算显式水系统中的盐摩尔浓度
 
 为模拟正常的生理条件，需要为 MD 模拟正确设置离子浓度。细胞中 NaCl 的浓度约为 150 mM，因此我们需计算蛋白质系统中该浓度所需的钠离子和氯离子数目。这部分怎样计算在amber官网的教程中有详细过程，[Calculating Salt Molarity in an Explicit Water System](https://ambermd.org/tutorials/basic/tutorial8/index.php)，如下图所示。
 
@@ -136,5 +136,30 @@ quit
 ![image11](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/calcc2.png)
 
 至此，运行MD前的准备工作基本完成，下面我们介绍MD的模拟步骤。
+
+# 二、MD模拟步骤
+
+## 2.1 tleap加载蛋白复合物
+
+LEaP程序有GUI界面的xleap也有命令行的tleap，我们这里介绍命令行界面tleap的用法，关于LEaP的介绍可查看[Fundamentals of LEaP](https://ambermd.org/tutorials/pengfei/index.php)。这里以*6ix5_SAM_ambiTS_noH.pdb*为例作为蛋白复合物，其中包含了*SAM*辅因子和*BOO*小分子配体，用`tleap -i tleap.in`载入下述tleap.in输入文件：
+```
+source oldff/leaprc.ff99SB
+source leaprc.water.tip3p
+source leaprc.phosaa10
+loadamberparams frcmod.ions1lm_126_tip3p    
+source leaprc.gaff
+loadamberparams TS-1_resp.frcmod 
+loadamberparams SAM_resp.frcmod 
+SAM = loadmol2 SAM_resp.mol2
+BOO = loadmol2 BOO_resp.mol2
+mol = loadpdb 6ix5_SAM_ambiTS_noH.pdb
+solvateBox mol TIP3PBOX 10.0
+addions mol Na+ 0
+addions mol Na+ 70
+addions mol Cl- 70
+savepdb mol 6ix5_complex_solv.pdb  
+saveamberparm mol min.prmtop min.inpcrd
+```
+为了运行分子动力学模拟, 我们需要加载力场来描述复合物的势能. 对蛋白质一般使用AMBER的*FF14SB*力场, *FF14SB*基于*FF12SB*, *FF12SB*是*FF99SB*的更新版本, 而*FF99SB*力场又是基于原始的Amber的Cornell等人(1995)的*ff94*力场。*FF14SB*力场最显著的变化包括更新了蛋白质*Phi-Psi*的扭转项, 并重新拟合了侧链的扭转项. 这些变化一起改进了对这些分子中α螺旋的估计。`source`命令用于加载力场，*leaprc.water.tip3p*为*TIP3P*水盒子模型的力场，*phosaa10*表示磷酸化修饰氨基酸的力场，*ions1lm_126_tip3p*表示tip3p水中+1，-1离子的参数，`solvatebox`命令对系统进行溶剂化，`addions mol Na+ 0`命令使用counter ions 对体系电荷进行平衡，`addions mol Na+/Cl- 70`添加盐离子至0.15 mM，`saveamberparm`保存溶剂化之后体系的拓扑文件（prmtop）和坐标文件（inpcrd）。小分子和辅因子的mol2文件和frcmod见文件夹`/parm`，这里需要注意复合物pdb中配体的原子顺序与mol2文件的可以不一致，但原子类型要和mol2文件中严格一致！！！
 
 
