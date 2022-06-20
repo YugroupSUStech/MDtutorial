@@ -143,7 +143,7 @@ quit
 
 LEaP程序有GUI界面的xleap也有命令行的tleap，我们这里介绍命令行界面tleap的用法，关于LEaP的介绍可查看[Fundamentals of LEaP](https://ambermd.org/tutorials/pengfei/index.php)。这里以*6ix5_SAM_ambiTS_noH.pdb*为例作为蛋白复合物，其中包含了*SAM*辅因子和*BOO*小分子配体，用`tleap -i tleap.in`载入下述tleap.in输入文件：
 ```
-source oldff/leaprc.ff99SB
+source leaprc.ff14SB
 source leaprc.water.tip3p
 source leaprc.phosaa10
 loadamberparams frcmod.ions1lm_126_tip3p    
@@ -161,5 +161,11 @@ savepdb mol 6ix5_complex_solv.pdb
 saveamberparm mol min.prmtop min.inpcrd
 ```
 为了运行分子动力学模拟, 我们需要加载力场来描述复合物的势能. 对蛋白质一般使用AMBER的*FF14SB*力场, *FF14SB*基于*FF12SB*, *FF12SB*是*FF99SB*的更新版本, 而*FF99SB*力场又是基于原始的Amber的Cornell等人(1995)的*ff94*力场。*FF14SB*力场最显著的变化包括更新了蛋白质*Phi-Psi*的扭转项, 并重新拟合了侧链的扭转项. 这些变化一起改进了对这些分子中α螺旋的估计。`source`命令用于加载力场，*leaprc.water.tip3p*为*TIP3P*水盒子模型的力场，*phosaa10*表示磷酸化修饰氨基酸的力场，*ions1lm_126_tip3p*表示tip3p水中+1，-1离子的参数，`solvatebox`命令对系统进行溶剂化，`addions mol Na+ 0`命令使用counter ions 对体系电荷进行平衡，`addions mol Na+/Cl- 70`添加盐离子至0.15 mM，`saveamberparm`保存溶剂化之后体系的拓扑文件（prmtop）和坐标文件（inpcrd）。小分子和辅因子的mol2文件和frcmod见文件夹[/parm](https://github.com/YugroupSUStech/MDtutorial/tree/main/parm)，这里需要注意复合物pdb中配体的原子顺序与mol2文件的可以不一致，但原子类型要和mol2文件中要严格一致！！！
+
+退出tleap请用`quit`。如果在载入蛋白时报错，一定先查看`tleap.log`文件，看看是哪一步出错，一般在载入小分子时出错很多，如果出现以下错误，很有可能是pdb文件中小分子的原子类型错误，与构建的mol2等力场文件不一致，或者残基名与mol2文件不一致，请仔细检查。其他错误可以将报错信息用google搜索。（不建议百度）
+```
+FATAL: Atom XXX does not have a type
+```
+
 
 
