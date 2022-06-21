@@ -177,5 +177,44 @@ saveamberparm mol min.prmtop min.inpcrd
 FATAL: Atom XXX does not have a type
 ```
 
+## 2.2 能量最小化
+
+在得到参数和拓扑文件`prmtop`以及坐标文件`inpcrd`后，我们用`sander`进行体系能量的最小化，也可以使用Amber的另外一个高性能版本`pmemd`。进行能量最小化有许多种选择，我们这里首先对蛋白复合物进行固定以优化水分子和离子，然后再将复合物放开优化整个系统。对应的`min1.in`和`min2.in`如下：
+
+* min1.in
+```
+minimizes solvent molecules
+ &cntrl
+  imin   = 1,
+  maxcyc = 10000,
+  ncyc   = 20000,
+  ntb    = 1,             
+  ntr    = 1,            
+  cut    = 10.0
+  restraint_wt = 200.0,
+  restraintmask = ':1-391',
+ /
+```
+
+* min2.in
+```
+minimizes all molecules
+ &cntrl
+  imin   = 1,
+  maxcyc = 10000,
+  ncyc   = 20000,
+  ntb    = 1,             
+  ntr    = 0,            
+  cut    = 10.0
+ /
+```
+这些设置总结如下：
+
+* imin=1: 选择运行能量最小化
+* maxcyc=2000: 最小化的最大循环数
+* ncyc=1000: 最初的0到ncyc循环使用最速下降算法, 此后的ncyc到maxcyc循环切换到共轭梯度算法（这里表明只使用最速下降法优化10000个循环）
+* ntb=1: 等容的周期性边界
+* ntr=1：使用谐波势限制笛卡尔空间中的特定原子的标志，如果`ntr>0`，则启用限制。受约束的原子是由`restraintmask`决定的。关于Amber里约束原子的规则，请查看[Amber里关于ambmask总结](https://blog.sciencenet.cn/blog-3366368-1080067.html)
+* cut=10.0 以埃为单位的非键截断距离(对于PME而言, 表示直接空间加和的截断. 不要使用低于8.0的值. 较高的数字略微提高精度, 但是大大增加计算成本)
 
 
