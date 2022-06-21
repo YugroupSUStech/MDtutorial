@@ -222,6 +222,7 @@ minimizes all molecules
 mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
 ```
 
+## 2.3 加热升温
 接下来将系统在**NVT**系综下分6次，每次50 K，逐渐升温至300 K，加热350 ps：
 * heat.in
 ```
@@ -274,5 +275,9 @@ heating under NVT
 * ntwr=1000: 每ntwr次循环，输出一次 “restrt” 文件
 * ntwx=0：每ntwx次输出一次轨迹，这里不输出
 
+使用`pmemd.cuda_SPFP`进行加热，也可以使用sander，但前者更快。
+```
+CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i heat.in -o heat.out -p min.prmtop -c min.nrst -r heat.nrst
+```
 
 
