@@ -217,4 +217,45 @@ minimizes all molecules
 * ntr=1：使用谐波势限制笛卡尔空间中的特定原子的标志，如果`ntr>0`，则启用限制。受约束的原子是由`restraintmask`决定的。关于Amber里约束原子的规则，请查看[Amber里关于ambmask总结](https://blog.sciencenet.cn/blog-3366368-1080067.html)
 * cut=10.0 以埃为单位的非键截断距离(对于PME而言, 表示直接空间加和的截断. 不要使用低于8.0的值. 较高的数字略微提高精度, 但是大大增加计算成本)
 
+使用`sander`命令执行最小化，（可以在太乙上使用`sander.MPI`多核并行计算，节约时间）
+```bash
+mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
+```
+
+接下来将系统在**NVT**系综下分6次，每次50 K，逐渐升温至300 K，加热350 fs：
+* heat.in
+```
+heating under NVT 
+ &cntrl
+  imin   = 0,
+  ig     = -1,  
+  irest  = 0,  
+  ntx    = 1,   
+  ntb    = 1,   
+  cut    = 10.0,
+  ntr    = 0,   
+  ntc    = 2,   
+  ntf    = 2,   
+  ntxo   = 2,   
+  tempi  = 0.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  nmropt = 1,
+  gamma_ln = 1.0,    
+  nstlim = 175000, dt = 0.002,                     
+  ntpr = 1000, ntwe = 0, ntwr = 1000, 
+ /
+ 
+&wt type  = 'TEMP0', istep1=0, istep2=25000, value1=0.0, value2=50.0 /
+&wt type  = 'TEMP0', istep1=25001, istep2=50000, value1=50.0, value2=100.0 / 
+&wt type  = 'TEMP0', istep1=50001, istep2=75000, value1=100.0, value2=150.0 / 
+&wt type  = 'TEMP0', istep1=75001, istep2=100000, value1=150.0, value2=200.0 / 
+&wt type  = 'TEMP0', istep1=100001, istep2=125000, value1=200.0, value2=250.0 / 
+&wt type  = 'TEMP0', istep1=125001, istep2=150000, value1=250.0, value2=300.0 /
+&wt type  = 'TEMP0', istep1=150001, istep2=175000, value1=300.0, value2=300.0 /
+&wt type  = 'END' /
+```
+这些设置总结如下：
+
+* imin=0: 选择运行分子动力学(无最小化)
 
