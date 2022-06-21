@@ -222,7 +222,7 @@ minimizes all molecules
 mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
 ```
 
-接下来将系统在**NVT**系综下分6次，每次50 K，逐渐升温至300 K，加热350 fs：
+接下来将系统在**NVT**系综下分6次，每次50 K，逐渐升温至300 K，加热350 ps：
 * heat.in
 ```
 heating under NVT 
