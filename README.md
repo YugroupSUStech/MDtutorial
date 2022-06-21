@@ -243,7 +243,7 @@ heating under NVT
   nmropt = 1,
   gamma_ln = 1.0,    
   nstlim = 175000, dt = 0.002,                     
-  ntpr = 1000, ntwe = 0, ntwr = 1000, 
+  ntpr = 1000, ntwr = 1000, 
  /
  
 &wt type  = 'TEMP0', istep1=0, istep2=25000, value1=0.0, value2=50.0 /
@@ -258,4 +258,21 @@ heating under NVT
 这些设置总结如下：
 
 * imin=0: 选择运行分子动力学(无最小化)
+* ig=-1: 随机化伪随机数发生器的种子
+* irest=0: 不重新启动模拟(不适用于最小化)
+* ntx=1: 从ASCII格式的inpcrd坐标文件读取坐标, 但不读取速度
+* ntc=2: 启用SHAKE来约束所有包含氢的键
+* ntf=2: 不计算受SHAKE约束的键所受的力
+* ntxo=2 写入轨迹的最终坐标、速度和盒子大小的格式。`=1` ACSII格式，`=2` defult, NetCDF格式
+* tempi=0.0: 初始恒温器的温度
+* temp0=300.0: 最终恒温器的温度
+* ntt=3: 使用Langevin恒温器控制温度
+* gamma_ln=1.0: Langevin恒温器的碰撞频率 （请查看amber手册，以选择合适的温度解耦器和碰撞频率）
+* nstlim=175000: 要运行的MD步数（运行时间长度，单位 ps；dt=0.002 时间步长，ps）
+* &wt type=xxx：分6次加热，每次50 K
+* ntpr=1000: 每ntpr次循环写入Amber mdout输出文件一次
+* ntwr=1000: 每ntwr次循环，输出一次 “restrt” 文件
+* ntwx=0：每ntwx次输出一次轨迹，这里不输出
+
+
 
