@@ -404,3 +404,51 @@ done
 
 ## 2.5 限制性模拟
 
+对于限制性模拟（restrained MD），大致有两种常见情况，一种是对蛋白或配体的某几个键长进行约束，例如对有氢键相互作用的原子或者过渡态中要成键断键的原子约束在一定距离内；另外一种情况是将某些原子的笛卡尔坐标施加谐波势进行固定。对于第一种情况，需要对关键词`nmropt`设为1，同时用指定文件`rst.dist`来描述如何对其进行限制，可以参考教程[Generating NMR restraints](https://ambermd.org/tutorials/advanced/tutorial4/index.php)中的约束键长部分，另外教程中也讲解了如何对torsion angle进行约束。
+
+* restrain_md.in
+```
+restrain Production simulation
+ &cntrl
+  imin   = 0,
+  ig     = -1,
+  irest  = 1,
+  ntx    = 5,
+  ntb    = 1,
+  pres0  = 1.0,
+  ntp    = 0,
+  cut    = 10.0,
+  ntr    = 0,
+  ntc    = 2,
+  ntf    = 2,
+  nmropt = 1,
+  ntxo   = 2,
+  tempi  = 300.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  gamma_ln = 2.0,
+  nstlim = 20000000, dt = 0.002,
+  ntpr = 25000, ntwx = 25000, ntwr = 50000,
+ /
+ 
+&wt 
+ type   = 'END'
+ /
+ 
+LISTOUT = POUT
+DISANG = ../rst.dist
+```
+* rst.dist 文件如下，对于atom id为6104和6105的成键原子对，施加谐波势使其约束在1.8~2.3 A范围内。对其上限施加100 kcal/mol·A 的谐波势，同时对其下限设为0。
+```
+&rst
+  iat=  6104,  6105, r1= 1.30, r2= 1.80, r3= 2.30, r4= 2.80, rk2=0.0, rk3=100.0,
+ &end
+ 
+ &rst
+  iat=  6099,  6100, r1= 1.30, r2= 1.80, r3= 2.90, r4= 3.40, rk2=0.0, rk3=100.0,
+ &end
+ 
+  &rst
+  iat=  6088,  6102, r1= 1.30, r2= 1.80, r3= 2.50, r4= 3.00, rk2=0.0, rk3=100.0,
+ &end
+```
