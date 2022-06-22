@@ -1,5 +1,13 @@
 # MDtutorial
 This tutorial is available to Yu group new members
+
+此教程主要参考AMBER官方教程和Jerkwin的博客改写。在学习过程中若出现错误可先去以上教程中查看有无提示，如果没有可以将错误信息用google搜索，结合着amber19的manual解决。这里推荐几个学习MD和DFT的网站，遇到问题可以逛逛：
+
+1. [Amber Tutorials](https://ambermd.org/tutorials/)
+2. [哲科文Jerkwin](http://jerkwin.github.io/)
+3. [思想家公社的门口](http://sobereva.com/)
+4. [Amber-hub](https://amberhub.chpc.utah.edu/)
+
 # 一、模拟前的准备工作
 ## 1.1 构建模型
 这里有一张图是关于Amber的整个流程，可以了解一下：
