@@ -61,7 +61,7 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 ```bash
 ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 ```
-到这里，如果蛋白不包含非标准的残基，那其pdb文件基本就处理好了，最后的文件不包括CONNECT等原子间的连接信息，只需要每个原子的三维坐标即可。关于pdb的格式如下图所示，第2列为原子序号，第三列为原子类型，第四列为残基名称，第五列为残基编号，（若蛋白为多链，第五列对应链编号），第6-8列为原子坐标，第9列为occupancy，占有率，一般设置为1，第10列为温度因子，可设置为0，最后一列为元素名称。在导入leap程序中的输入文件，第9，10列可以不需要。
+到这里，如果蛋白不包含非标准的残基，那其pdb文件基本就处理好了，最后的文件不包括CONNECT等原子间的连接信息，只需要每个原子的三维坐标即可。关于pdb的格式如下图所示，第2列为原子序号，第三列为原子类型，第四列为残基名称，第五列为残基编号，（若蛋白为多链，第五列对应链编号），第6-8列为原子坐标，第9列为occupancy，占有率，一般设置为1，第10列为温度因子，可设置为0，最后一列为元素名称。在导入leap程序中的输入文件，第9，10列可以不需要。[PDB文件格式说明](https://blog.sciencenet.cn/blog-548663-895916.html)
 
 ![image8](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pdb1.png)
 
@@ -122,7 +122,9 @@ parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 ```
 *BOO_resp.frcmod*将包含所有缺少的参数，或者通过类比类似的参数来填补这些缺失的参数。You should check these parameters carefully before running a simulation. If antechamber can't empirically calculate a value or has no analogy it will either add a default value that it thinks is reasonable or alternatively insert a place holder (with zeros everywhere) and the comment "ATTN: needs revision". In this case you will have to manually parameterise this yourself. 
 
-至此，小分子的力场就构建完成，*BOO.mol2* 和 *BOO_resp.frcmod*包含了小分子的电荷，原子类型，残基名，键长，键角，二面角等信息，在后续的LEaP程序加载复合物pdb时将用到。但应注意的是，用*tleap*加载时，pdb中小分子的原子类型一定要和mol2文件中严格一致。（见后续图）
+至此，小分子的力场就构建完成，*BOO.mol2* 和 *BOO_resp.frcmod*包含了小分子的电荷，原子类型，残基名，键长，键角，二面角等信息，在后续的LEaP程序加载复合物pdb时将用到。但应注意的是，用*tleap*加载时，pdb中小分子的原子类型一定要和mol2文件中严格一致。
+
+对于含有金属配位的蛋白体系，例如血红蛋白酶P450中铁卟啉分子力场的构建，可使用MCPB.py构建，具体参考教程[Building Bonded Model for A HEME Group with MCPB.py](https://ambermd.org/tutorials/advanced/tutorial20/mcpbpy_heme.php)，写的非常详细！
 
 ## 1.6 计算显式水系统中的盐摩尔浓度
 
@@ -225,7 +227,7 @@ minimizes all molecules
 * ntr=1：使用谐波势限制笛卡尔空间中的特定原子的标志，如果`ntr>0`，则启用限制。受约束的原子是由`restraintmask`决定的。关于Amber里约束原子的规则，请查看[Amber里关于ambmask总结](https://blog.sciencenet.cn/blog-3366368-1080067.html)
 * cut=10.0 以埃为单位的非键截断距离(对于PME而言, 表示直接空间加和的截断. 不要使用低于8.0的值. 较高的数字略微提高精度, 但是大大增加计算成本)
 
-使用`sander`命令执行最小化，（可以在太乙上使用`sander.MPI`多核并行计算，节约时间）
+使用`sander`命令执行最小化，（可以在太乙上使用`sander.MPI`多核并行计算，节约时间）。另外注意在使用`ntr=1`时，执行sander程序应在命令行加上`-ref min.inpcrd`用来指定所施加的限制的参考坐标！
 ```bash
 mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
 ```
@@ -421,7 +423,7 @@ restrain Production simulation
   ntr    = 0,
   ntc    = 2,
   ntf    = 2,
-  nmropt = 1,
+  nmropt = 1,  ###notice the value is 1
   ntxo   = 2,
   tempi  = 300.0,
   temp0  = 300.0,
