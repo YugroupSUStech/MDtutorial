@@ -280,4 +280,9 @@ heating under NVT
 CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i heat.in -o heat.out -p min.prmtop -c min.nrst -r heat.nrst
 ```
 
+## 2.3 平衡体系
+
+在用水盒子溶剂化蛋白复合物之后，体系的密度一般在0.8~0.9 g/cc，而正常情况下的盐溶液密度应为1.1 g/cc，因此我们在平衡阶段应首先使用恒温恒压 **NPT** 模拟来平衡体系的密度，在密度稳定之后可以转向NVT系综再预平衡一段时间，或者直接开始生产MD。对于不同科学问题的MD模拟，平衡和生产MD阶段所用的系综可以不同，对于研究蛋白质折叠等动力学问题，应使用 **NPT** 系综，而研究生物大分子与小分子结合，计算结合自由能等热力学性质，使用 **NVT** 系综就已足够。具体可查看[常规平衡态分子动力学模拟](https://zhuanlan.zhihu.com/p/345627471)。
+
+
 
