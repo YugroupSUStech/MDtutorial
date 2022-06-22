@@ -284,5 +284,73 @@ CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i heat.in -o heat.out -p min.prmtop -
 
 在用水盒子溶剂化蛋白复合物之后，体系的密度一般在0.8~0.9 g/cc，而正常情况下的盐溶液密度应为1.1 g/cc，因此我们在平衡阶段应首先使用恒温恒压 **NPT** 模拟来平衡体系的密度，在密度稳定之后可以转向NVT系综再预平衡一段时间，或者直接开始生产MD。对于不同科学问题的MD模拟，平衡和生产MD阶段所用的系综可以不同，对于研究蛋白质折叠等动力学问题，应使用 **NPT** 系综，而研究生物大分子与小分子结合，计算结合自由能等热力学性质，使用 **NVT** 系综就已足够。具体可查看[常规平衡态分子动力学模拟](https://zhuanlan.zhihu.com/p/345627471)。
 
+这里我们现在 **NPT** 系综下平衡至密度稳定，再转向 **NVT** 系综下平衡：
+* equil1.in
+```
+equil in NPT ensemble
+ &cntrl
+  imin   = 0,
+  ig     = -1,
+  irest  = 1,
+  ntx    = 5,
+  ntb    = 2,
+  pres0  = 1.0,
+  ntp    = 1,
+  taup   = 2.0,
+  cut    = 10.0,
+  ntr    = 0,
+  nmropt = 0,
+  ntc    = 2,
+  ntf    = 2,
+  ntxo   = 2,
+  tempi  = 300.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  gamma_ln = 2.0,
+  nstlim = 100000, dt = 0.002,
+  ntpr = 1000, ntwx = 1000, ntwr = 1000,
+ /
+```
+* equil2.in
+```
+equil in NVT ensemble
+ &cntrl
+  imin   = 0,
+  ig     = -1,
+  irest  = 1,
+  ntx    = 5,
+  ntb    = 2,
+  pres0  = 1.0,
+  ntp    = 1,
+  taup   = 2.0,
+  cut    = 10.0,
+  ntr    = 0,
+  nmropt = 0,
+  ntc    = 2,
+  ntf    = 2,
+  ntxo   = 2,
+  tempi  = 300.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  gamma_ln = 2.0,
+  nstlim = 100000, dt = 0.002,
+  ntpr = 1000, ntwx = 1000, ntwr = 1000,
+ /
+```
+这些设置总结如下：
+
+* ntx=5：从NetCDF或ASCII格式的inpcrd坐标文件读取坐标和速度
+* ntb=2：在恒定压力下使用周期性边界条件
+* ntp=1：使用Berendsen恒压器进行恒压模拟
+* pres0=1：参考压力，in units of bars，1 bar大约0.987 atm
+* taup=2：压力弛豫时间，推荐1~5
+
+使用`pmemd.cuda_SPFP`进行平衡：
+```
+CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i equil.in -o equil.out -p min.prmtop -c heat.nrst -r equil.nrst -x equil.mdcrd
+```
+在进行第一步平衡时可以使用`tail -f equil1.out` 监控作业的状态，查看体系的密度是否稳定，下图所示：
+
+![image12](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/equil1.png)
 
 
