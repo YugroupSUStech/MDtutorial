@@ -124,7 +124,7 @@ parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 
 至此，小分子的力场就构建完成，*BOO.mol2* 和 *BOO_resp.frcmod*包含了小分子的电荷，原子类型，残基名，键长，键角，二面角等信息，在后续的LEaP程序加载复合物pdb时将用到。但应注意的是，用*tleap*加载时，pdb中小分子的原子类型一定要和mol2文件中严格一致。
 
-对于含有金属配位的蛋白体系，例如血红蛋白酶P450中铁卟啉分子力场的构建，可使用MCPB.py构建，具体参考教程[Building Bonded Model for A HEME Group with MCPB.py](https://ambermd.org/tutorials/advanced/tutorial20/mcpbpy_heme.php)，写的非常详细！
+***对于含有金属配位的蛋白体系，例如血红蛋白酶P450中铁卟啉分子力场的构建，可使用MCPB.py构建，具体参考教程[Building Bonded Model for A HEME Group with MCPB.py](https://ambermd.org/tutorials/advanced/tutorial20/mcpbpy_heme.php)，写的非常详细！***
 
 ## 1.6 计算显式水系统中的盐摩尔浓度
 
