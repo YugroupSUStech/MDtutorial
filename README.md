@@ -398,6 +398,9 @@ Production simulation
  /
 
 EOF
+done
 ```
 整个MD过程的脚本见[/parm](https://github.com/YugroupSUStech/MDtutorial/tree/main/parm)中的***run_md.sh***。
+
+## 2.5 限制性模拟
 
