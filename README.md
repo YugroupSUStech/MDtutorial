@@ -1,7 +1,7 @@
 # MDtutorial
 This tutorial is available to Yu group new members
 
-此教程主要参考AMBER官方教程和Jerkwin的博客改写。在学习过程中若出现错误可先去以上教程中查看有无提示，如果没有可以将错误信息用google搜索，结合着amber19的manual解决。这里推荐几个学习MD和DFT的网站，遇到问题可以逛逛：
+此教程主要参考AMBER官方教程和Jerkwin的博客改写。在学习过程中若出现错误可先去以上教程中查看有无提示，如果没有可以将错误信息用google搜索，结合着amber19的[manual](https://github.com/YugroupSUStech/MDtutorial/blob/main/Amber19.pdf)解决。这里推荐几个学习MD和DFT的网站，遇到问题可以逛逛：
 
 1. [Amber Tutorials](https://ambermd.org/tutorials/)
 2. [哲科文Jerkwin](http://jerkwin.github.io/)
@@ -361,4 +361,43 @@ CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i equil.in -o equil.out -p min.prmtop
 
 ![image12](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/equil1.png)
 
+## 2.4 生产MD模拟
+
+与平衡阶段类似，只需要将模拟时间延长。我们以模拟600 ns为例，一般在**NPT**系综下模拟，模拟太长时间容易导致体系的崩溃，可以将长时间的模拟分成几段；而在**NVT**系综下不会出现这种情况，为了方便我们将600 ns的模拟分成15段：
+```bash
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+do
+j=$[i-1]
+mkdir produc_$i
+cp produc_$j/Production_$j.nrst  ./produc_$i
+cp min.prmtop  ./produc_$i
+cd produc_$i
+
+/bin/cat > Production.in<<EOF
+Production simulation
+ &cntrl
+  imin   = 0,
+  ig     = -1,
+  irest  = 1,
+  ntx    = 5,
+  ntb    = 1,
+  pres0  = 1.0,
+  ntp    = 0,
+  cut    = 10.0,
+  ntr    = 0,
+  ntc    = 2,
+  ntf    = 2,
+  nmropt = 0,
+  ntxo   = 2,
+  tempi  = 300.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  gamma_ln = 2.0,
+  nstlim = 20000000, dt = 0.002,
+  ntpr = 25000, ntwx = 25000, ntwr = 50000,
+ /
+
+EOF
+```
+整个MD过程的脚本见[/parm](https://github.com/YugroupSUStech/MDtutorial/tree/main/parm)中的***run_md.sh***。
 
