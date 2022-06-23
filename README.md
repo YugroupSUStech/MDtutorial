@@ -57,7 +57,7 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 
 ![image7](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pka3.png)
 
-使用*ambpdb*生成修改残基名称后的pdb文件，若预测的HIS等的质子化与机理不一致，可以手动在pdb文件中修改，如将HIE-->HIP。
+使用`ambpdb`生成修改残基名称后的pdb文件，若预测的HIS等的质子化与机理不一致，可以手动在pdb文件中修改，如将HIE-->HIP。
 ```bash
 ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 ```
@@ -116,7 +116,7 @@ python -m propka BOO.pdb
 
 若在高斯优化没有生成gesp文件，可能是高斯版本的问题，请看上面的教程链接。其中，**-pf** 表示删除计算的临时文件，**y** 表示yes， **-rn** 表示将mol2文件中小分子残基名重命名为LIG， **-c** 指定原子电荷为resp。
 
-&emsp;（4）使用*parmchk2*来生成*BOO_resp.frcmod*文件，这是一个参数文件，主要是生成的小分子mol2文件在通用力场**GAFF**中缺失的键长，键角，二面角等参数。
+&emsp;（4）使用`parmchk2`来生成*BOO_resp.frcmod*文件，这是一个参数文件，主要是生成的小分子mol2文件在通用力场**GAFF**中缺失的键长，键角，二面角等参数。
 ```
 parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 ```
