@@ -488,3 +488,6 @@ Production simulation NVT
 pmemd.cuda_SPFP -O -i 04Production.in -o 04Production.out -p min.prmtop -c equil3.nrst -r 04Production.nrst -x 04Production.mdcrd  -ref equil3.nrst
 ```
 
+# 三、分析轨迹
+## 3.1 RMSD分析
+
