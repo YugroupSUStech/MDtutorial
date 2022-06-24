@@ -408,7 +408,7 @@ done
 
 对于限制性模拟（restrained MD），大致有两种常见情况，一种是对蛋白或配体的某几个键长进行约束，例如对有氢键相互作用的原子或者过渡态中要成键断键的原子约束在一定距离内；另外一种情况是将某些原子的笛卡尔坐标施加谐波势进行固定。对于第一种情况，需要对关键词`nmropt`设为1，同时用指定文件`rst.dist`来描述如何对其进行限制，可以参考教程[Generating NMR restraints](https://ambermd.org/tutorials/advanced/tutorial4/index.php)中的约束键长部分，另外教程中也讲解了如何对torsion angle进行约束。
 
-* restrain_md.in
+* nmropt_md.in
 ```
 restrain Production simulation
  &cntrl
@@ -454,3 +454,37 @@ DISANG = ../rst.dist
   iat=  6088,  6102, r1= 1.30, r2= 1.80, r3= 2.50, r4= 3.00, rk2=0.0, rk3=100.0,
  &end
 ```
+另外也可以对原子坐标施加谐波势能进行固定，此时需用关键词`ntr=1`，同时用`restrain_wt`指定所施加谐波势的大小，`restrainmask`指定对哪些原子进行固定，另外注意在使用`ntr=1`时，执行sander程序应在命令行加上`-ref min.inpcrd`用来指定所施加的限制的参考坐标！
+
+* ntr_md.in
+```
+Production simulation NVT
+ &cntrl
+  imin   = 0,
+  ig     = -1,
+  irest  = 0,
+  ntx    = 5,
+  ntb    = 1,
+  pres0  = 1.0,
+  ntp    = 0,
+  cut    = 10.0,
+  ntr    = 1,
+  nmropt = 0,  
+  ntc    = 2,
+  ntf    = 2,
+  ntxo   = 2,
+  restraint_wt = 10.0,
+  restraintmask = ':390',  
+  tempi  = 300.0,
+  temp0  = 300.0,
+  ntt    = 3,
+  gamma_ln = 2.0,
+  nstlim = 20000000, dt = 0.001,
+  ntpr = 25000, ntwx = 25000, ntwr = 50000,
+ /
+```
+在模拟过程中若出现cuda报显存错误等信息，很有可能是所施加的力太大同时使用了SHAKE算法，具体请查看[SHAKE failures](https://ambermd.org/Questions/blowup.html)中所描述的体系崩溃是否和你的体系一样，这里有关于体系**Blow Up**问题的中文解释[GROMACS术语：爆破(Blowing_Up)](https://blog.sciencenet.cn/blog-548663-1023974.html)。解决此类问题的方法，一是减小施加的限制力，而是缩短时间步长`dt=0.002`->`dt=0.001`，另外也要和上述教程说的，检查结构是否有原子重合。
+```
+pmemd.cuda_SPFP -O -i 04Production.in -o 04Production.out -p min.prmtop -c equil3.nrst -r 04Production.nrst -x 04Production.mdcrd  -ref equil3.nrst
+```
+
