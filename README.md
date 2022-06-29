@@ -545,3 +545,14 @@ run
 exit
 ```
 如若需要计算相对于平均结构的RMSD或者计算不同轨迹间的RMSD请详细查看以上教程。
+
+## 3.2 使用CPPTRAJ进行主成分分析
+
+正在学习中，可参考教程[Introduction to Principal Component Analysis](https://amberhub.chpc.utah.edu/introduction-to-principal-component-analysis/)
+
+## 3.3 使用CPPTRAJ进行聚类分析
+
+关于聚类分析有许多种统计分析方法，其中使用最多的是k-means算法，可参考教程[Clustering a protein from multiple independent copies](https://amberhub.chpc.utah.edu/clustering-a-protein-trajectory/)，写的非常详细！
+
+
+
