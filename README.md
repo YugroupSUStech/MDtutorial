@@ -491,3 +491,57 @@ pmemd.cuda_SPFP -O -i 04Production.in -o 04Production.out -p min.prmtop -c equil
 # 三、分析轨迹
 ## 3.1 RMSD分析
 
+这里我们介绍MD模拟后最常用的一种分析: 即坐标均方根偏差(RMSD)。RMSD是测量某部分特定原子相对于一参考结构的坐标偏差, 最完美的重合时则RMSD为0.0. RMSD定义为:
+
+![rmsd](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/rmsd.png)
+
+其中***N***是原子数，***mi***是原子***i***质量，***Xi***是目标原子***i***的坐标向量，***Yi***是参考原子***i***的坐标向量，***M***是总质量。如果 RMSD 不是质量加权的，则所有的***mi=1, M=N*** 。
+
+在计算目标到参考结构的 RMSD 时，有两个非常重要的要求： 
+* 目标中的原子数必须与参考中的原子数匹配。 
+* 目标中原子的顺序必须与参考中的原子顺序相匹配。
+* 
+在本例中，我们先将上述MD模拟后的几个片段使用`trans.in`合并为一整条轨迹，轨迹采用**NetCDF**格式，它比**ASCII**格式处理速度更快、更紧凑、精度更高。在转化过程中可以选择去除所有的水分子和离子，并使用`autoimage`将蛋白居中，便于后续观察。（关于autoimage：自动居中和成像（按分子）具有周期性边界的轨迹。在大多数情况下，仅指定“autoimage”就足够了。 “锚”分子（默认为第一个分子）将居中；只有当成像使它们更接近“锚”分子时，所有“固定”分子才会被成像； “固定”分子的默认值是所有非溶剂非离子分子。所有其他分子（称为“移动”）将自由成像。一般来说，“锚”分子应该是与所有“固定”分子距离最小的分子。）
+
+* trans.in
+```
+parm ../min.prmtop
+trajin ../produc_1/Production_1.mdcrd
+trajin ../produc_2/Production_2.mdcrd
+trajin ../produc_3/Production_3.mdcrd
+trajin ../produc_4/Production_4.mdcrd
+trajin ../produc_5/Production_5.mdcrd
+trajin ../produc_6/Production_6.mdcrd
+trajin ../produc_7/Production_7.mdcrd
+trajin ../produc_8/Production_8.mdcrd
+trajin ../produc_9/Production_9.mdcrd
+trajin ../produc_10/Production_10.mdcrd
+trajin ../produc_11/Production_11.mdcrd
+trajin ../produc_12/Production_12.mdcrd
+trajin ../produc_13/Production_13.mdcrd
+trajin ../produc_14/Production_14.mdcrd
+trajin ../produc_15/Production_15.mdcrd
+strip :WAT,Na+,Cl-
+trajout Production1-15.nc
+autoimage
+go
+```
+处理后的`Production1-15.nc`将只包含复合物分子坐标。另外，我们也可以准备一个相应的只包含蛋白复合物拓扑文件：
+* parmtrans.in
+```
+parm min.prmtop
+parmstrip :WAT,Na+,Cl-
+parmwrite out min_noion_water.prmtop
+go
+```
+接下来用CPPTRAJ进行RMSD计算，需要注意的是，计算RMSD需要指定对象，并且选定参考结构，可以详细参考教程[CPPTRAJ教程：RMSD分析](http://jerkwin.github.io/2018/03/15/AMBER_CPPTRAJ%E6%95%99%E7%A8%8BC1-RMSD%E5%88%86%E6%9E%90/)。本例中，我们选定模拟的起始点作为reference，只计算1-474号残基CA的波动，输入文件如下：
+* rmsd.in
+```
+parm min_noion_water.prmtop
+trajin Production1-15.nc
+reference ../produc_1/Production_0.nrst
+rmsd :1-474@CA out prodProteinRmsdCA.dat mass reference
+run
+exit
+```
+如若需要计算相对于平均结构的RMSD或者计算不同轨迹间的RMSD请详细查看以上教程。
