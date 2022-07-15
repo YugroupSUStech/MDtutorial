@@ -30,11 +30,11 @@ This tutorial is available to Yu group new members
 ## 1.2 处理pdb文件
 这就要用到上面介绍的*pdb4amber*命令，在使用前可以用
 ```bash
-pdb4amber -h
+$ pdb4amber -h
 ```
 来查看此命令的用法， 下载的pdb文件可能包含一些非标准残基和配体或者辅因子，为方便后面预测残基的质子化状态我们可以先用*pdb4amber*去除这些残基，
 ```bash
-pdb4amber -i input.pdb -o output.pdb -d -y 
+$ pdb4amber -i input.pdb -o output.pdb -d -y 
 ```
 其中，**-d** 表示 删掉所有水分子， **-y** 表示删掉所有氢原子，此命令除了输出**output.pdb** 还会将非标准残基输出到**xxx_nonstand.pdb**中。另外也会对所有的残基重新从1开始编号，使文件格式更标准。
 
@@ -59,7 +59,7 @@ pdb4amber -i input.pdb -o output.pdb -d -y
 
 使用`ambpdb`生成修改残基名称后的pdb文件，若预测的HIS等的质子化与机理不一致，可以手动在pdb文件中修改，如将HIE-->HIP。
 ```bash
-ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
+$ ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 ```
 到这里，如果蛋白不包含非标准的残基，那其pdb文件基本就处理好了，最后的文件不包括CONNECT等原子间的连接信息，只需要每个原子的三维坐标即可。关于pdb的格式如下图所示，第2列为原子序号，第三列为原子类型，第四列为残基名称，第五列为残基编号，（若蛋白为多链，第五列对应链编号），第6-8列为原子坐标，第9列为occupancy，占有率，一般设置为1，第10列为温度因子，可设置为0，最后一列为元素名称。在导入leap程序中的输入文件，第9，10列可以不需要。[PDB文件格式说明](https://blog.sciencenet.cn/blog-548663-895916.html)
 
@@ -79,20 +79,20 @@ Proteins, Nucleic Acids, and Organic Molecules](https://pubs.acs.org/doi/10.1021
 * 安装propka
 propka需要python 3.6 及以后的版本，可以通过anaconda创建环境然后用pip安装：
 ```
-pip install propka
+$ pip install propka
 ```
 * 用propka预测
 用法非常简单，只需要准备小分子的pdb文件。可以用命令行，也可以手动复制粘贴，比如从复合物为6ix5的pdb中取出残基名为BOO的配体：
 ```
-awk '$1=="HETATM"' 6ix5.pdb | awk '$4=="BOO"' > BOO.pdb
+$ awk '$1=="HETATM"' 6ix5.pdb | awk '$4=="BOO"' > BOO.pdb
 ```
 然后使用propka预测：
 ```
-propka3 BOO.pdb
+$ propka3 BOO.pdb
 ```
 or
 ```
-python -m propka BOO.pdb
+$ python -m propka BOO.pdb
 ```
 计算完成后，打开名为BOO.pka的文件，找到*SUMMARY OF PREDICTION*，若发现有极性原子的pKa>7，则该原子应为质子化的，体系电荷应+1。
 
@@ -112,13 +112,13 @@ python -m propka BOO.pdb
 
 &emsp;（3）使用antechamber拟合resp电荷
 
-    antechamber -i BOO.gesp -fi gesp -o BOO.mol2 -fo mol2 -pf y -rn LIG -c resp 
+    $ antechamber -i BOO.gesp -fi gesp -o BOO.mol2 -fo mol2 -pf y -rn LIG -c resp 
 
 若在高斯优化没有生成gesp文件，可能是高斯版本的问题，请看上面的教程链接。其中，**-pf** 表示删除计算的临时文件，**y** 表示yes， **-rn** 表示将mol2文件中小分子残基名重命名为LIG， **-c** 指定原子电荷为resp。
 
 &emsp;（4）使用`parmchk2`来生成*BOO_resp.frcmod*文件，这是一个参数文件，主要是生成的小分子mol2文件在通用力场**GAFF**中缺失的键长，键角，二面角等参数。
 ```
-parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
+$ parmchk2 -i BOO.mol2 -f mol2 -i BOO_resp.frcmod
 ```
 *BOO_resp.frcmod*将包含所有缺少的参数，或者通过类比类似的参数来填补这些缺失的参数。You should check these parameters carefully before running a simulation. If antechamber can't empirically calculate a value or has no analogy it will either add a default value that it thinks is reasonable or alternatively insert a place holder (with zeros everywhere) and the comment "ATTN: needs revision". In this case you will have to manually parameterise this yourself. 
 
@@ -229,7 +229,7 @@ minimizes all molecules
 
 使用`sander`命令执行最小化，（可以在太乙上使用`sander.MPI`多核并行计算，节约时间）。另外注意在使用`ntr=1`时，执行sander程序应在命令行加上`-ref min.inpcrd`用来指定所施加的限制的参考坐标！
 ```bash
-mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
+$ mpirun -np 40 sander.MPI -O -i min.in -o min.out -p min.prmtop -c min.inpcrd -r min.nrst
 ```
 
 ## 2.3 加热升温
@@ -287,7 +287,7 @@ heating under NVT
 
 使用`pmemd.cuda_SPFP`进行加热，也可以使用sander，但前者更快。
 ```
-CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i heat.in -o heat.out -p min.prmtop -c min.nrst -r heat.nrst
+$ CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i heat.in -o heat.out -p min.prmtop -c min.nrst -r heat.nrst
 ```
 
 ## 2.3 平衡体系
@@ -357,7 +357,7 @@ equil in NVT ensemble
 
 使用`pmemd.cuda_SPFP`进行平衡：
 ```
-CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i equil.in -o equil.out -p min.prmtop -c heat.nrst -r equil.nrst -x equil.mdcrd
+$ CUDA_VISIBLE_DEVICES=0 pmemd.cuda_SPFP -O -i equil.in -o equil.out -p min.prmtop -c heat.nrst -r equil.nrst -x equil.mdcrd
 ```
 在进行第一步平衡时可以使用`tail -f equil1.out` 监控作业的状态，查看体系的密度是否稳定，下图所示：
 
@@ -485,7 +485,7 @@ Production simulation NVT
 ```
 在模拟过程中若出现cuda报显存错误等信息，很有可能是所施加的力太大同时使用了SHAKE算法，具体请查看[SHAKE failures](https://ambermd.org/Questions/blowup.html)中所描述的体系崩溃是否和你的体系一样，这里有关于体系**Blow Up**问题的中文解释[GROMACS术语：爆破(Blowing_Up)](https://blog.sciencenet.cn/blog-548663-1023974.html)。解决此类问题的方法，一是减小施加的限制力，而是缩短时间步长`dt=0.002`->`dt=0.001`，另外也要和上述教程说的，检查结构是否有原子重合。
 ```
-pmemd.cuda_SPFP -O -i 04Production.in -o 04Production.out -p min.prmtop -c equil3.nrst -r 04Production.nrst -x 04Production.mdcrd  -ref equil3.nrst
+$ pmemd.cuda_SPFP -O -i 04Production.in -o 04Production.out -p min.prmtop -c equil3.nrst -r 04Production.nrst -x 04Production.mdcrd  -ref equil3.nrst
 ```
 
 # 三、分析轨迹
