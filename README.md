@@ -65,6 +65,12 @@ $ ambpdb -p 0.15_80_10_pH7.0xxx.top -c 0.15_80_10_pH7.0xxx.crd > protein_H++.pdb
 
 ![image8](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/pdb1.png)
 
+## 1.x 对蛋白封端
+
+模拟多肽或者氨基酸数目较少的蛋白如需在模拟前封端，可以使用pymol操作，操作非常简便，如图首先点击右上角的“**Builder**”，在弹出的窗口中选择“**Protein**”，再点击 “**ACE**”cap在蛋白***N端***，再点击“**NME**” or “**NHH**”cap在蛋白***C端***。
+
+![fengduan](https://github.com/YugroupSUStech/MDtutorial/blob/main/IMG/fengduan.png)
+
 ## 1.4 非标准残基力场的构建
 
 这里由琮晟写。
