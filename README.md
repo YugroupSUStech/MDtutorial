@@ -335,9 +335,9 @@ equil in NVT ensemble
   ig     = -1,
   irest  = 1,
   ntx    = 5,
-  ntb    = 2,
+  ntb    = 1,
   pres0  = 1.0,
-  ntp    = 1,
+  ntp    = 0,
   taup   = 2.0,
   cut    = 10.0,
   ntr    = 0,
@@ -357,6 +357,7 @@ equil in NVT ensemble
 
 * ntx=5：从NetCDF或ASCII格式的inpcrd坐标文件读取坐标和速度
 * ntb=2：在恒定压力下使用周期性边界条件
+* ntb=1：在恒定体积下使用周期性边界条件
 * ntp=1：使用Berendsen恒压器进行恒压模拟
 * pres0=1：参考压力，in units of bars，1 bar大约0.987 atm
 * taup=2：压力弛豫时间，推荐1~5
