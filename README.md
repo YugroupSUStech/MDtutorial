@@ -155,14 +155,14 @@ quit
 
 # 二、MD模拟步骤
 
-## 2.1 tleap加载蛋白复合物
+## 2.1.1 tleap加载蛋白复合物
 
 LEaP程序有GUI界面的xleap也有命令行的tleap，我们这里介绍命令行界面tleap的用法，关于LEaP的介绍可查看[Fundamentals of LEaP](https://ambermd.org/tutorials/pengfei/index.php)。这里以*6ix5_SAM_ambiTS_noH.pdb*为例作为蛋白复合物，其中包含了*SAM*辅因子和*BOO*小分子配体，用`tleap -i tleap.in`载入下述tleap.in输入文件：
 ```
 source leaprc.ff14SB
 source leaprc.water.tip3p
-source leaprc.phosaa10
-loadamberparams frcmod.ions1lm_126_tip3p    
+source leaprc.phosaa10  ## 磷酸化残基力场 
+loadamberparams frcmod.ions1lm_126_tip3p    ## TIP3P水与1价电荷互作的力场，可以不写，因为已包含在leaprc.water.tip3p中
 source leaprc.gaff
 loadamberparams TS-1_resp.frcmod 
 loadamberparams SAM_resp.frcmod 
@@ -171,6 +171,7 @@ BOO = loadmol2 BOO_resp.mol2
 mol = loadpdb 6ix5_SAM_ambiTS_noH.pdb
 solvateBox mol TIP3PBOX 10.0
 addions mol Na+ 0
+addions mol Cl- 0
 addions mol Na+ 70
 addions mol Cl- 70
 savepdb mol 6ix5_complex_solv.pdb  
@@ -192,6 +193,21 @@ saveamberparm mol min.prmtop min.inpcrd
 ```
 FATAL: Atom XXX does not have a type
 ```
+
+## 2.1.1 氢质量重排
+
+在需要进行长时间的MD模拟中，可以使用`parmed`来对拓扑文件进行氢原子质量重排处理，以便于使用更长的timestep（比如4fs）进行长时间的MD模拟。
+
+```
+$parmed min.prmtop
+```
+在交互式界面中输入如下：
+```
+HMassREpartition
+parmout min_hmr.prmtop
+go
+```
+在后续的模拟中使用`min_hmr.prmtop`即可采用更大的时间步长进行长时间模拟。
 
 ## 2.2 能量最小化
 
